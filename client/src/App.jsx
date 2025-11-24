@@ -8,7 +8,7 @@ export default function App() {
   const [summary, setSummary] = useState("")
 
   const handleSearch = async () => {
-    const res = await fetch("http://127.0.0.1:5000/summary", {
+    const res = await fetch("https://research-agent-szgx.onrender.com/summary", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, days }),
