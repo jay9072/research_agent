@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react"
+import "./App.css"
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [query, setQuery] = useState("")
+  const [days, setDays] = useState("7")
+  const [repos, setRepos] = useState([])
+  const [summary, setSummary] = useState("")
+
+  const handleSearch = async () => {
+    const res = await fetch("http://127.0.0.1:5000/summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, days }),
+    })
+
+    const data = await res.json()
+    setRepos(data.repos)
+    setSummary(data.summary)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <h1>Research Agent</h1>
+
+      {/* 검색 영역 */}
+      <div className="search-box">
+        <input
+          placeholder="검색할 주제를 입력하세요 (예: robot, AI, python)"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+
+        <select value={days} onChange={(e) => setDays(e.target.value)}>
+          <option value="180">6개월</option>
+          <option value="365">1년</option>
+          <option value="1095">3년</option>
+        </select>
+
+        <button onClick={handleSearch}>검색</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      {/* 레포 목록 */}
+      {repos.length > 0 && (
+        <>
+          <div className="section-title">레포 목록</div>
+          {repos.map((repo) => (
+            <div key={repo.id} className="repo-card">
+              <div className="repo-name">{repo.full_name}</div>
+              <div>{repo.description}</div>
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* 요약 */}
+      {summary && (
+        <>
+          <div className="section-title">AI 요약</div>
+          <div className="summary-box">{summary}</div>
+        </>
+      )}
+    </div>
   )
 }
-
-export default App
